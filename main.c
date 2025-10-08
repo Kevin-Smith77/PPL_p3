@@ -1,4 +1,8 @@
-
+/*       
+NAME: Ben McIntire/Kevin Smith
+FILE: main.c
+FUNC: 
+*/
 
 #include <stdio.h>
 
