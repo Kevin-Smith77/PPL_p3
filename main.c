@@ -5,19 +5,16 @@ FUNC:
 */
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
-
-
 /* Global initialization of token values */
-char token, nextToken;
-/* Error struct prototype for when we need it */
-struct error{
-    int line, space, errorCode;
-};
+char c;
 /* Default Constructors */
 void operator();
 void digit();
 void character();
+bool isLetter(char);
+
 void printTokens(char**,int);
 
 int main(int argc, char **argv) {
@@ -31,7 +28,9 @@ int main(int argc, char **argv) {
     if (fp) {
         while ((token = fgetc(fp)) != EOF) {
             while(token != '\n'){
-
+              if(isDigit(c)){}
+              else if(isLetter(c)){}
+              else{}
             }
             printf ("\n");
             printTokens(tokenArray, numTokens);
@@ -43,6 +42,17 @@ int main(int argc, char **argv) {
 
     return 0;
 }
+
+
+/* 
+FUNC:
+INPUT:
+OUTPUT:
+*/
+bool isLetter(char c){
+    int val = (int)c;
+    if(( val >= 65 && val <= 90 )||( val >= 97 && val <= 122)){ return 1; }
+    else{ return 0;}
 
 void printTokens(char** tokenArray, int numTokens){
     for(int i = 0; i < numTokens; i++){
