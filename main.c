@@ -7,14 +7,23 @@ FUNC:
 #include <stdio.h>
 
 
-int main(int argc, char **argv) {
-    float number;
-    FILE *fp;
+/* Global initialization of token values */
+char token, nextToken;
+/* Error struct prototype for when we need it */
+struct error{
+    int line, space, errorCode;
+};
+/* Default Constructors */
+void operator();
+void digit();
+void character();
 
+int main(int argc, char **argv) {
+    FILE *fp;
     fp = fopen (argv[1], "r");
     if (fp) {
-        while (fscanf (fp, "%f", &number) != EOF) {
-            printf ("%8.2f\n", number);
+        while ((token = fgetc(fp)) != EOF) {
+            printf ("%c\n", token);
         }
         fclose (fp);
     } else
