@@ -70,7 +70,8 @@ OUTPUT:
 */
 void printTokens(char** tokenArray, int numTokens){
     int i;
-    for(i = 0; i <= numTokens; i++){
+    /*printf("%d tokens: \n", numTokens);*/
+    for(i = 0; i < numTokens; i++){
         printf("%s  ", tokenArray[i]);
     }
     printf("\n");
