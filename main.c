@@ -7,6 +7,8 @@ FUNC:
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
 /* Global initialization of token values */
 char c;
 /* Default Constructors */
@@ -21,7 +23,8 @@ void printTokens(char**,int);
 int main(int argc, char **argv) {
     FILE *fp;
     char** tokenArray = (char**) malloc(100 * sizeof(char*));
-    for(int i = 0; i < 100; i++){
+    int i;
+    for(i = 0; i < 100; i++){
         tokenArray[i] = (char*) malloc(10 * sizeof(char));
     }
     int numTokens = 0;
@@ -30,7 +33,7 @@ int main(int argc, char **argv) {
         while ((c = fgetc(fp)) != EOF) {
             while(c != '\n'){
                 while(c == ' ' || c == '\t'){ c = fgetc(fp); }
-                if(isDigit(c)){digit(fp, tokenArray, &numTokens);}
+                if(isdigit(c)){digit(fp, tokenArray, &numTokens);}
                 else if(isLetter(c)){character(fp, tokenArray, &numTokens);}
                 else{operator(fp, tokenArray, &numTokens); }
                 printf("  ");
@@ -65,7 +68,8 @@ INPUT:
 OUTPUT:
 */
 void printTokens(char** tokenArray, int numTokens){
-    for(int i = 0; i < numTokens; i++){
+    int i;
+    for(i = 0; i < numTokens; i++){
         printf("%s  ", tokenArray[i]);
     }
     printf("\n");
