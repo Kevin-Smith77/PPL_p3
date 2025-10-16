@@ -76,8 +76,8 @@ FUNC:
 INPUT:
 OUTPUT:
 */
-void operator(FILE *fp, char** tokenArray, int i){
-    printf(%c, c);
+void operator(FILE *fp, char** tokenArray, int* i){
+    printf("%c", c);
     if (c == '+' || c == '-'){ 
         tokenArray[*i++] = "<ADD-OP>"; 
         c = fgetc(fp);
@@ -91,11 +91,11 @@ void operator(FILE *fp, char** tokenArray, int i){
     else if (c == '!'){
         c = fgetc(fp);
         printf("%c", c);
-        if((c == '='){ tokenArray[*i++] = "<EQ-OP>"; }
+        if(c == '='){ tokenArray[*i++] = "<EQ-OP>"; }
         else{ tokenArray[*i++] = "<OTHER>"; }
         c = fgetc(fp);
     }
-    else if (c == '>' || c == '<'{
+    else if (c == '>' || c == '<'){
         tokenArray[*i++] = "<COMP-OP>";
         c = fgetc(fp);
         if(c == '='){
