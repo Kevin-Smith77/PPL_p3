@@ -29,13 +29,16 @@ int main(int argc, char **argv) {
 
         while ((c = fgetc(fp)) != EOF) {
             while(c != '\n'){
-              if(isDigit(c)){}
-              else if(isLetter(c)){}
-              else{}
+                while(c == ' ' || c == '\t'){ c = fgetc(fp); }
+                if(isDigit(c)){digit(fp, tokenArray, &numTokens);}
+                else if(isLetter(c)){character(fp, tokenArray, &numTokens);}
+                else{operator(fp, tokenArray, &numTokens); }
+                printf("  ");
             }
             printf ("\n");
             printTokens(tokenArray, numTokens);
             numTokens = 0;
+            while(c == '\n'){ c = fgetc(fp); }
         }
         fclose (fp);
     } else
