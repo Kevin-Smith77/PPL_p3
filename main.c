@@ -10,6 +10,7 @@ FUNC:
 /* Global initialization of token values */
 char c;
 /* Default Constructors */
+
 void operator(FILE*, char**, int*);
 void digit(FILE*, char**, int*);
 void character(FILE*, char**, int*);
@@ -28,13 +29,16 @@ int main(int argc, char **argv) {
     if (fp) {
         while ((c = fgetc(fp)) != EOF) {
             while(c != '\n'){
-              if(isDigit(c)){}
-              else if(isLetter(c)){}
-              else{}
+                while(c == ' ' || c == '\t'){ c = fgetc(fp); }
+                if(isDigit(c)){digit(fp, tokenArray, &numTokens);}
+                else if(isLetter(c)){character(fp, tokenArray, &numTokens);}
+                else{operator(fp, tokenArray, &numTokens); }
+                printf("  ");
             }
             printf ("\n");
             printTokens(tokenArray, numTokens);
             numTokens = 0;
+            while(c == '\n'){ c = fgetc(fp); }
         }
         fclose (fp);
     } else
@@ -55,7 +59,6 @@ bool isLetter(char c){
     else{ return 0;}
 }
 
-
 /* 
 FUNC:
 INPUT:
@@ -67,9 +70,6 @@ void printTokens(char** tokenArray, int numTokens){
     }
     printf("\n");
 }
-
-
-
 
 /* 
 FUNC:
@@ -121,5 +121,36 @@ void operator(FILE *fp, char** tokenArray, int i){
     }
 }
 
-
+void character(FILE* fp, char** tokenArray, int* numTokens){
+    char* str = (char*) malloc(20 * sizeof(char));
+    int index = 0;
+    while(isLetter(c)){
+        printf("%c", c);
+        c = fgetc(fp);
+        str[index++] = c;
+    }
+    str[index] = '\0';
+    if(strcmp(str, "while") == 0){ tokenArray[(*numTokens)++] = "WHILE"; }
+    else if(strcmp(str, "if") == 0){ tokenArray[(*numTokens)++] = "IF"; }
+    else if(strcmp(str, "int") == 0){ tokenArray[(*numTokens)++] = "INT"; }
+    else if(strcmp(str, "else") == 0){ tokenArray[(*numTokens)++] = "ELSE"; }
+    else if(strcmp(str, "float") == 0){ tokenArray[(*numTokens)++] = "FLOAT"; }
+    else{ tokenArray[(*numTokens)++] = "ID"; }
+}
+void digit(FILE* fp, char** tokenArray, int* numTokens){
+    while (isdigit(c)) {
+        printf ("%c", c);
+        c = fgetc(fp);
+    }
+    if (c == '.') {
+        printf ("%c", c);
+        c = fgetc(fp);
+        while (isdigit(c)) {
+            printf ("%c", c);
+            c = fgetc(fp);
+        }
+        tokenArray[(*numTokens)++] = "FLOAT";
+    }
+    else { tokenArray[(*numTokens)++] = "INT"; }
+}
 
