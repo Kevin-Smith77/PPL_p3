@@ -11,7 +11,7 @@ FUNC:
 char c;
 /* Default Constructors */
 void operator();
-void digit();
+void digit(FILE*, char**, int*);
 void character(FILE*, char**, int*);
 bool isLetter(char);
 
@@ -62,115 +62,7 @@ void printTokens(char** tokenArray, int numTokens){
     }
     printf("\n");
 }
-/*
-void character(FILE* fp, char** tokenArray, int* numTokens){
-    bool done = false;
-    printf("%c", c);
-    if(c=='w'){
-        c = fgetc(fp);
-        if(c=='h'){
-            printf("%c", c);
-            c = fgetc(fp);
-            if(c=='i'){
-                printf("%c", c);
-                c = fgetc(fp);
-                if(c=='l'){
-                    printf("%c", c);
-                    c = fgetc(fp);
-                    if(c=='e'){
-                        printf("%c", c);
-                        c = fgetc(fp);
-                        if(!isLetter(c)){
-                            done = true;
-                            tokenArray[*numTokens] = "WHILE";
-                            (*numTokens)++;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    else if(c=='i'){
-        c = fgetc(fp);
-        if(c=='f'){
-            printf("%c", c);
-            c = fgetc(fp);
-            if(!isLetter(c)){
-                done = true;
-                tokenArray[*numTokens] = "IF";
-                (*numTokens)++;
-            }
-        }
-        else if(c=='n'){
-            printf("%c", c);
-            c = fgetc(fp);
-            if(c=='t'){
-                printf("%c", c);
-                c = fgetc(fp);
-                if(!isLetter(c)){
-                    done = true;
-                    tokenArray[*numTokens] = "INT";
-                    (*numTokens)++;
-                }
-            }
-        }
-    }
-    else if(c=='e'){
-        c = fgetc(fp);
-        if(c=='l'){
-            printf("%c", c);
-            c = fgetc(fp);
-            if(c=='s'){
-                printf("%c", c);
-                c = fgetc(fp);
-                if(c=='e'){
-                    printf("%c", c);
-                    c = fgetc(fp);
-                    if(!isLetter(c)){
-                        done = true;
-                        tokenArray[*numTokens] = "ELSE";
-                        (*numTokens)++;
-                    }
-                }
-            }
-        }
-        
-    }
-    else if(c=='f'){
-        printf("%c", c);
-        c = fgetc(fp);
-        if(c=='l'){
-            printf("%c", c);
-            c = fgetc(fp);
-            if(c=='o'){
-                printf("%c", c);
-                c = fgetc(fp);
-                if(c=='a'){
-                    printf("%c", c);
-                    c = fgetc(fp);
-                    if(c=='t'){
-                        printf("%c", c);
-                        c = fgetc(fp);
-                        if(!isLetter(c)){
-                            done = true;
-                            tokenArray[*numTokens] = "FLOAT";
-                            (*numTokens)++;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    if(!done){
-        while(isLetter(c)){
-            printf("%c", c);
-            c = fgetc(fp);
-        }
-        tokenArray[*numTokens] = "ID";
-        (*numTokens)++;
-    }
-}
-*/
+
 void character(FILE* fp, char** tokenArray, int* numTokens){
     char* str = (char*) malloc(20 * sizeof(char));
     int index = 0;
@@ -186,4 +78,20 @@ void character(FILE* fp, char** tokenArray, int* numTokens){
     else if(strcmp(str, "else") == 0){ tokenArray[(*numTokens)++] = "ELSE"; }
     else if(strcmp(str, "float") == 0){ tokenArray[(*numTokens)++] = "FLOAT"; }
     else{ tokenArray[(*numTokens)++] = "ID"; }
+}
+void digit(FILE* fp, char** tokenArray, int* numTokens){
+    while (isdigit(c)) {
+        printf ("%c", c);
+        c = fgetc(fp);
+    }
+    if (c == '.') {
+        printf ("%c", c);
+        c = fgetc(fp);
+        while (isdigit(c)) {
+            printf ("%c", c);
+            c = fgetc(fp);
+        }
+        tokenArray[(*numTokens)++] = "FLOAT";
+    }
+    else { tokenArray[(*numTokens)++] = "INT"; }
 }
