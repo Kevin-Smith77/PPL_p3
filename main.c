@@ -111,6 +111,10 @@ void operator(FILE *fp, char** tokenArray, int i){
         tokenArray[*i++] = "<NULL-STMT>"; 
         c = fgetc(fp);
     }
+    else if (c == ')' || c == '('){
+        tokenArray[*i++] = "<PARENTH>";
+        c = fgetc(fp);
+    }
     else{ 
         tokenArray[*i++] = "<OTHER>"; 
         c = fgetc(fp);
