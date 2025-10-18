@@ -1,7 +1,10 @@
 /*       
 NAME: Ben McIntire/Kevin Smith
 FILE: main.c
-FUNC: 
+FUNC: program scanner for tokenizing C- code
+INPUT: [file] containing C- code
+OUTPUT: displayed token values below outputed code
+STATUS: DONE
 */
 
 #include <stdio.h>
@@ -9,16 +12,16 @@ FUNC:
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
-/* Global initialization of token values */
+/* Global initialization for character values */
 char c;
 /* Default Constructors */
-
-void operator(FILE*, char**, int*);
-void digit(FILE*, char**, int*);
-void character(FILE*, char**, int*);
 bool isLetter(char);
-
 void printTokens(char**,int);
+void operator(FILE*, char**, int*);
+void character(FILE*, char**, int*);
+void digit(FILE*, char**, int*);
+
+
 
 int main(int argc, char **argv) {
     FILE *fp;
@@ -30,13 +33,16 @@ int main(int argc, char **argv) {
     int numTokens = 0;
     fp = fopen (argv[1], "r");
     if (fp) {
+        
         c = fgetc(fp);
         while (c != EOF) {
+            
             while(c != '\n' && c != EOF){
-                while(c == ' ' || c == '\t'){ c = fgetc(fp); }
-                if(isdigit(c)){digit(fp, tokenArray, &numTokens);}
-                else if(isLetter(c)){character(fp, tokenArray, &numTokens);}
-                else{operator(fp, tokenArray, &numTokens); }
+                
+                while(c == ' ' || c == '\t') { c = fgetc(fp); }
+                if(isdigit(c)) { digit(fp, tokenArray, &numTokens); }
+                else if(isLetter(c)) { character(fp, tokenArray, &numTokens); }
+                else { operator(fp, tokenArray, &numTokens); }
                 printf("  ");
             }
             printf ("\n");
@@ -52,21 +58,24 @@ int main(int argc, char **argv) {
 }
 
 
+
 /* 
-FUNC:
-INPUT:
-OUTPUT:
+FUNC: Check ascii value of a character to determine if it is a letter (upper or lower)
+INPUT: [char] to check
+OUTPUT: boolean value expressing if the character is a letter
 */
 bool isLetter(char c){
     int val = (int)c;
-    if(( val >= 65 && val <= 90 )||( val >= 97 && val <= 122)){ return 1; }
-    else{ return 0;}
+    if(( val >= 65 && val <= 90 )||( val >= 97 && val <= 122)) { return 1; }
+    else { return 0; }
 }
 
+
+
 /* 
-FUNC:
-INPUT:
-OUTPUT:
+FUNC: Print tokens from token array
+INPUT: Array of token strings, [int] of number of token's in array
+OUTPUT: Displayed token strings
 */
 void printTokens(char** tokenArray, int numTokens){
     int i;
@@ -77,99 +86,131 @@ void printTokens(char** tokenArray, int numTokens){
     printf("\n");
 }
 
+
+
 /* 
-FUNC:
-INPUT:
-OUTPUT:
+FUNC: Compare characters from program file to determine it's token value, add it's token value to the token array
+INPUT: [file] input pointer, token array, [int] of number of tokens in array
+OUTPUT: NULL
 */
-void operator(FILE *fp, char** tokenArray, int* i){
+void operator(FILE *fp, char** tokenArray, int* numTokens){
     printf("%c", c);
-    if (c == '+' || c == '-'){ 
-        tokenArray[(*i)++] = "<ADD-OP>"; 
+    if (c == '+' || c == '-'){
+        
+        tokenArray[(*numTokens)++] = "<ADD-OP>"; 
         c = fgetc(fp);
     }
-
     else if (c == '=' ){
-        tokenArray[(*i)++] = "<EQ-OP>";
+        
+        tokenArray[(*numTokens)++] = "<EQ-OP>";
         c = fgetc(fp);
     }
     else if(c==':'){
+        
         c = fgetc(fp);
-        if(c == '='){ 
-            tokenArray[(*i)++] = "<ASSIGN>"; 
+        if(c == '='){
+            
+            tokenArray[(*numTokens)++] = "<ASSIGN>"; 
             printf("%c", c);
             c = fgetc(fp);
         }
-        else{ tokenArray[(*i)++] = "<OTHER>"; }
+        else { tokenArray[(*numTokens)++] = "<OTHER>"; }
     }
 
     else if (c == '!'){
+        
         c = fgetc(fp);
         printf("%c", c);
-        if(c == '='){ tokenArray[(*i)++] = "<EQ-OP>"; }
-        else{ tokenArray[(*i)++] = "<OTHER>"; }
+        if(c == '=') { tokenArray[(*numTokens)++] = "<EQ-OP>"; }
+        else { tokenArray[(*numTokens)++] = "<OTHER>"; }
         c = fgetc(fp);
     }
     else if (c == '>' || c == '<'){
-        tokenArray[(*i)++] = "<COMP-OP>";
+        
+        tokenArray[(*numTokens)++] = "<COMP-OP>";
         c = fgetc(fp);
         if(c == '='){
+            
             printf("%c", c);
             c = fgetc(fp);
         }    
     }
     else if (c == '*' || c == '/' || c == '%'){ 
-        tokenArray[(*i)++] = "<MULT-OP>"; 
+        
+        tokenArray[(*numTokens)++] = "<MULT-OP>"; 
         c = fgetc(fp);
     }
     else if (c == ';'){
-        tokenArray[(*i)++] = "<NULL-STMT>"; 
+        
+        tokenArray[(*numTokens)++] = "<NULL-STMT>"; 
         c = fgetc(fp);
     }
     else if ( c == '('){
-        tokenArray[(*i)++] = "<OPEN-PAREN>";
+        
+        tokenArray[(*numTokens)++] = "<OPEN-PAREN>";
         c = fgetc(fp);
     }
     else if (c == ')'){
-        tokenArray[(*i)++] = "<CLOSED-PAREN>";
+        
+        tokenArray[(*numTokens)++] = "<CLOSED-PAREN>";
         c = fgetc(fp);
     }
     else{ 
-        tokenArray[(*i)++] = "<OTHER>"; 
+        
+        tokenArray[(*numTokens)++] = "<OTHER>"; 
         c = fgetc(fp);
     }
 }
 
+
+
+/* 
+FUNC: Compare characters from program file to determine it's token value, add it's token value to the token array
+INPUT: [file] input pointer, token array, [int] of number of tokens in array
+OUTPUT: NULL
+*/
 void character(FILE* fp, char** tokenArray, int* numTokens){
     char* str = (char*) malloc(20 * sizeof(char));
     int index = 0;
     while(isLetter(c)){
+        
         str[index++] = c;
         printf("%c", c);
         c = fgetc(fp);
     }
     str[index] = '\0';
-    if(strcmp(str, "while") == 0){ tokenArray[(*numTokens)++] = "WHILE"; }
-    else if(strcmp(str, "if") == 0){ tokenArray[(*numTokens)++] = "IF"; }
-    else if(strcmp(str, "int") == 0){ tokenArray[(*numTokens)++] = "INT"; }
-    else if(strcmp(str, "else") == 0){ tokenArray[(*numTokens)++] = "ELSE"; }
-    else if(strcmp(str, "float") == 0){ tokenArray[(*numTokens)++] = "FLOAT"; }
-    else{ tokenArray[(*numTokens)++] = "ID"; }
+    if(strcmp(str, "while") == 0) { tokenArray[(*numTokens)++] = "<WHILE>"; }
+    else if(strcmp(str, "if") == 0) { tokenArray[(*numTokens)++] = "<IF>"; }
+    else if(strcmp(str, "int") == 0) { tokenArray[(*numTokens)++] = "<INT>"; }
+    else if(strcmp(str, "else") == 0) { tokenArray[(*numTokens)++] = "<ELSE>"; }
+    else if(strcmp(str, "float") == 0) { tokenArray[(*numTokens)++] = "<FLOAT>"; }
+    else if(strcmp(str, "program") == 0) { tokenArray[(*numTokens)++] = "<PROGRAM>"; }
+    else { tokenArray[(*numTokens)++] = "<ID>"; }
 }
+
+
+
+/* 
+FUNC: Compare characters from program file to determine it's token value, add it's token value to the token array
+INPUT: [file] input pointer, token array, [int] of number of tokens in array
+OUTPUT: NULL
+*/
 void digit(FILE* fp, char** tokenArray, int* numTokens){
     while (isdigit(c)) {
+        
         printf ("%c", c);
         c = fgetc(fp);
     }
     if (c == '.') {
+        
         printf ("%c", c);
         c = fgetc(fp);
         while (isdigit(c)) {
+            
             printf ("%c", c);
             c = fgetc(fp);
         }
-        tokenArray[(*numTokens)++] = "FLOAT";
+        tokenArray[(*numTokens)++] = "<FLOAT-CONST>";
     }
-    else { tokenArray[(*numTokens)++] = "INT"; }
+    else { tokenArray[(*numTokens)++] = "<INT-CONST>"; }
 }
-
