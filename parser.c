@@ -6,7 +6,14 @@ INPUT:
 OUTPUT:
 STATUS:
 */
-#include <iostream>
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+
 int main (){
   
 }
+
