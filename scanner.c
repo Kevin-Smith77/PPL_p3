@@ -155,6 +155,11 @@ void operator(FILE *fp, char** tokenArray, int* numTokens){
         tokenArray[(*numTokens)++] = "<CLOSED-PAREN>";
         c = fgetc(fp);
     }
+    else if (c == ','){
+        
+        tokenArray[(*numTokens)++] = "<COMMA>";
+        c = fgetc(fp);
+    }
     else{ 
         
         tokenArray[(*numTokens)++] = "<OTHER>"; 

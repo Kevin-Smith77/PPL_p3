@@ -1,2 +1,4 @@
-main:	main.c
-	gcc -ansi main.c -o main
+scanner:	scanner.c
+	gcc -ansi scanner.c -o scan
+parser:	parser.c
+	gcc -ansi parser.c -o parse
