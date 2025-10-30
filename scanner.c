@@ -142,7 +142,7 @@ void operator(FILE *fp, char** tokenArray, int* numTokens){
     }
     else if (c == ';'){
         
-        tokenArray[(*numTokens)++] = "<NULL-STMT>"; 
+        tokenArray[(*numTokens)++] = "<STMT-END>"; 
         c = fgetc(fp);
     }
     else if ( c == '('){
@@ -190,6 +190,8 @@ void character(FILE* fp, char** tokenArray, int* numTokens){
     else if(strcmp(str, "else") == 0) { tokenArray[(*numTokens)++] = "<ELSE>"; }
     else if(strcmp(str, "float") == 0) { tokenArray[(*numTokens)++] = "<FLOAT>"; }
     else if(strcmp(str, "program") == 0) { tokenArray[(*numTokens)++] = "<PROGRAM>"; }
+    else if(strcmp(str, "begin") == 0) { tokenArray[(*numTokens)++] = "<BEGIN>"; }
+    else if(strcmp(str, "end") == 0) { tokenArray[(*numTokens)++] = "<END>"; }
     else { tokenArray[(*numTokens)++] = "<ID>"; }
 }
 
