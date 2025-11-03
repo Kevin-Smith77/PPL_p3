@@ -12,15 +12,20 @@ STATUS: DONE
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+struct token {
+    char* tokenID;
+    char* code;
+};
 /* Global initialization for character values */
 char c;
+token* t, tNext;
 /* Default Constructors */
 bool isLetter(char);
 void printTokens(char**,int);
 void operator(FILE*, char**, int*);
 void character(FILE*, char**, int*);
 void digit(FILE*, char**, int*);
-
+void getToken(FILE*);
 
 
 int main(int argc, char **argv) {
@@ -57,7 +62,15 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-
+void getToken(FILE *fp){
+    if (fp){
+        t = tNext;
+        tNext = token newToken;
+        while(c == ' ' || c == '\t'){ c = fgetc(fp); }
+        while(c != '\n' && c != '\t' && c != ' ' && c != 'EOF') {
+            
+    }
+}
 
 /* 
 FUNC: Check ascii value of a character to determine if it is a letter (upper or lower)
