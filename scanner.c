@@ -121,8 +121,38 @@ void operator(FILE *fp, struct token** tokenArray, int* numTokens){
             c = fgetc(fp);
         }
         else { 
-            tokenArray[numTokens]->tokenID = "<OTHER>";
-            tokenArray[numTokens]->code = strdup(":" + c);
+            tokenArray[*numTokens]->tokenID = "<OTHER>";
+            tokenArray[*numTokens]->code = strdup(":" + c);
+            (*numTokens)++;
+        }
+    }
+    else if(c=='&'){
+        
+        c = fgetc(fp);
+        if(c == '&'){
+            tokenArray[*numTokens]->tokenID = "<AND>";
+            tokenArray[*numTokens]->code = strdup("&&");
+            (*numTokens)++;
+            c = fgetc(fp);
+        }
+        else { 
+            tokenArray[*numTokens]->tokenID = "<OTHER>";
+            tokenArray[*numTokens]->code = strdup("&" + c);
+            (*numTokens)++;
+        }
+    }
+    else if(c=='|'){
+        
+        c = fgetc(fp);
+        if(c == '|'){
+            tokenArray[*numTokens]->tokenID = "<OR>";
+            tokenArray[*numTokens]->code = strdup("||");
+            (*numTokens)++;
+            c = fgetc(fp);
+        }
+        else { 
+            tokenArray[*numTokens]->tokenID = "<OTHER>";
+            tokenArray[*numTokens]->code = strdup("|" + c);
             (*numTokens)++;
         }
     }
@@ -156,7 +186,7 @@ void operator(FILE *fp, struct token** tokenArray, int* numTokens){
     else if (c == '*' || c == '/' || c == '%'){ 
         
         tokenArray[(*numTokens)]->tokenID = "<MULT-OP>"; 
-        tokeArray[(*numTokens)]->code = strdup(c);
+        tokenArray[(*numTokens)]->code = strdup(c);
         (*numTokens)++;
         c = fgetc(fp);
     }
