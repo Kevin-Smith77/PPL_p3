@@ -1,11 +1,14 @@
 /*
 NAME: Ben McIntire/Kevin Smith
 FILE: parser.c
-FUNC: 
-INPUT:
-OUTPUT:
-STATUS:
+FUNC: Parse through C- code and display any issues encountered
+INPUT: [FILE] with C- code
+OUTPUT: errors within C- code
+STATUS: DONE
 */
+
+
+// INCLUDE STATEMENTS
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -13,13 +16,11 @@ STATUS:
 #include <ctype.h>
 #include "scanner.c"
 
-struct errorData{
-    int position, line;
-    char* code;
-};
 
+
+// DEFAULT CONSTRUCTORS
 void getNextToken();
-
+void error(char* msg);
 void program();
 void compoundStatement();
 void statementList();
@@ -47,7 +48,6 @@ bool identifier();
 bool unaryExpression();
 bool conditionalStatement();
 bool whileStatement();
-
 bool nullStatement();
 void declarationList();
 bool declaration();
@@ -66,18 +66,21 @@ bool isAnd();
 bool isOr();
 
 
+
+// STRUCTURES
 struct errorData{
     int position, line;
     char* code;
 }
 
-void error(char* msg);
 
+// GLOBALS
 struct token curToken;
 struct token nextToken;
 struct errorData errorStatement;
 FILE *fp;
-struct errorData errorStatement;
+
+
 
 int main (int argc, char **argv){
     errorStatement.line = 1;
@@ -94,6 +97,11 @@ int main (int argc, char **argv){
     return 0;
 }
 
+/*
+FUNC: Identifies token value of code segment, updates error statement values to print error statements
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 void getNextToken(){
     curToken = nextToken;
     int dummyNum = 0;
@@ -127,7 +135,11 @@ void getNextToken(){
     strcat(errorStatement.code, nextToken.code);
 }
 
-
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 void program(){
     if(!isProgram()){
         error("Expected 'Program'");
@@ -155,6 +167,13 @@ void program(){
     }
     compoundStatement();
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 void compoundStatement(){
     if(!begin()){
         error("Expected 'begin'");
@@ -170,15 +189,35 @@ void compoundStatement(){
     }
 }
 
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 void declarationList(){
     while(declaration());
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 void statementList(){
     while(nextToken.tokenID != "<END>" && nextToken.tokenID != "<EOF>"){
         statement();
         getNextToken();
     }
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 void statement(){
     if(!expressionStatement() && !conditionalStatement() && !whileStatement() && !nullStatement()){
         if(begin()){
@@ -193,6 +232,12 @@ void statement(){
     }
 }
 
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool declaration(){
     if(typeSpecifier()){
         getNextToken();
@@ -211,6 +256,12 @@ bool declaration(){
     return false;
 }
 
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool typeSpecifier(){
     if(intType() || floatType()){
         return true;
@@ -218,6 +269,12 @@ bool typeSpecifier(){
     return false;
 }
 
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool initalizedDeclaratorList(){
     while(identifier() && (strcmp(nextToken.tokenID, "<COMMA>") == 0)){
         getNextToken(); 
@@ -226,6 +283,12 @@ bool initalizedDeclaratorList(){
     return (identifier() && (strcmp(nextToken.tokenID, "<STMT-END>") == 0));
 }
 
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool expressionStatement(){
     if(identifier() && (strcmp(nextToken.tokenID, "<ASSIGN>") == 0)){
         getNextToken(); 
@@ -243,6 +306,13 @@ bool expressionStatement(){
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool unaryExpression(){ 
     if(addOp() && strcmp(curToken.code, "-") == 0 ){
         getNextToken();
@@ -252,6 +322,13 @@ bool unaryExpression(){
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool primaryExpression(){
     if(constant()){
         getNextToken();
@@ -286,6 +363,12 @@ bool primaryExpression(){
     return false;
 }
 
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool parenthesizedExpression(){
     if(openParenthesis()){
         getNextToken();
@@ -305,12 +388,26 @@ bool parenthesizedExpression(){
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool expression(){
     if(additiveExpression() || expressionStatement()){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool whileStatement(){
     if(isWhile()){
         getNextToken();
@@ -332,6 +429,13 @@ bool whileStatement(){
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool conditionalStatement(){
     if(isIf()){
         getNextToken();
@@ -357,6 +461,13 @@ bool conditionalStatement(){
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool additiveExpression(){
     if(multiplicativeExpression()){
         getNextToken();
@@ -372,6 +483,13 @@ bool additiveExpression(){
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool multiplicativeExpression(){
     if(unaryExpression()){
         getNextToken();
@@ -387,6 +505,13 @@ bool multiplicativeExpression(){
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool relationalExpression(){
     if(additiveExpression()){
         getNextToken();
@@ -402,6 +527,13 @@ bool relationalExpression(){
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool equalityExpression(){
     if(relationalExpression()){
         getNextToken();
@@ -417,6 +549,13 @@ bool equalityExpression(){
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool logicalAndExpression(){
     if(equalityExpression()){
         getNextToken();
@@ -432,6 +571,13 @@ bool logicalAndExpression(){
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool logicalOrExpression(){
     if(logicalAndExpression()){
         getNextToken();
@@ -449,13 +595,24 @@ bool logicalOrExpression(){
 }
 
 
-
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool isProgram(){
     if(strcmp(curToken.tokenID, "<PROGRAM>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool isMain(){
     if(strcmp(curToken.tokenID, "<ID>") == 0 && strcmp(curToken.code, "main") == 0){
         return true;
@@ -463,128 +620,273 @@ bool isMain(){
     return false;
 }
 
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool intType(){
     if(strcmp(curToken.tokenID, "<INT>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool floatType(){
     if(strcmp(curToken.tokenID, "<FLOAT>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool identifier(){
     if(strcmp(curToken.tokenID, "<ID>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool begin(){
     if(strcmp(curToken.tokenID, "<BEGIN>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool end(){
     if(strcmp(curToken.tokenID, "<END>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool openParenthesis(){
     if(strcmp(curToken.tokenID, "<OPEN-PAREN>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool closedParenthesis(){
     if(strcmp(curToken.tokenID, "<CLOSED-PAREN>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool nullStatement(){
     if(strcmp(curToken.tokenID, "<STMT-END>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool isWhile(){
     if(strcmp(curToken.tokenID, "<WHILE>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool isIf(){
     if(strcmp(curToken.tokenID, "<IF>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool isElse(){
     if(strcmp(curToken.tokenID, "<ELSE>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool addOp(){
     if(strcmp(curToken.tokenID, "<ADD-OP>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool multOp(){
     if(strcmp(curToken.tokenID, "<MULT-OP>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool equalityOp(){
     if(strcmp(curToken.tokenID, "<EQ-OP>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool relationalOp(){
     if(strcmp(curToken.tokenID, "<COMP-OP>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool constant(){
     if(integerConstant() || floatingConstant()){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool integerConstant(){
     if(strcmp(curToken.tokenID, "<INT-CONST>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool floatingConstant(){
     if(strcmp(curToken.tokenID, "<FLOAT-CONST>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool isAnd(){
     if(strcmp(curToken.tokenID, "<AND>") == 0){
         return true;
     }
     return false;
 }
+
+
+/*
+FUNC: Parser logic function to check C- syntax
+INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, global [errorData] structure
+OUTPUT: N/A
+*/
 bool isOr(){
     if(strcmp(curToken.tokenID, "<OR>") == 0){
         return true;
     }
     return false;
-
 }
 
+
+
+/*
+FUNC: Display error message 
+INPUT: global errorData, [char*] error message
+OUTPUT: structured error statement
+*/
 void error(char* msg){
     char str[100];
     printf("%d: %s\n", errorStatement.line, errorStatement.code);
@@ -596,4 +898,5 @@ void error(char* msg){
     printf("    %s^\n", str);
     printf("Error: %s\n", msg);
 }
+
 
