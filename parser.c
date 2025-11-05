@@ -8,7 +8,7 @@ STATUS: DONE
 */
 
 
-// INCLUDE STATEMENTS
+/* INCLUDE STATEMENTS */
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -97,6 +97,7 @@ int main (int argc, char **argv){
         printf ("ERROR - File not found\n");
         return 1;
     }
+    c = fgetc(fp);
     getNextToken();
     getNextToken();
     program();
