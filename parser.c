@@ -166,13 +166,13 @@ void program(){
         getNextToken();
     }
     if(!openParenthesis()){
-        error("Expected '('");
+        error("Expected '(' 169");
     }
     else{
         getNextToken();
     }
     if(!closedParenthesis()){
-        error("Expected ')'");
+        error("Expected ')' 175");
     }
     else{
         getNextToken();
@@ -188,16 +188,16 @@ OUTPUT: N/A
 */
 void compoundStatement(){
     if(!begin()){
-        error("Expected 'begin'");
+        error("Expected 'begin' 200");
     }
     else{
         getNextToken();
     }
     declarationList();
     statementList();
-    getNextToken();
+    /*getNextToken();*/
     if(!end()){
-        error("Expected 'end'");
+        error("Expected 'end' 200");
     }
 }
 
@@ -235,13 +235,14 @@ void statement(){
         if(begin()){
             compoundStatement();
         }
-    }
-    else {
-        error("Invalid statement");
-        while(!nullStatement() && !begin() && strcmp(nextToken->tokenID, "<END>") !=0 && strcmp(nextToken->tokenID, "<EOF>") !=0){
-            getNextToken();
+        else {
+            error("Invalid statement 240");
+            while(!nullStatement() && !begin() && strcmp(nextToken->tokenID, "<END>") !=0 && strcmp(nextToken->tokenID, "<EOF>") !=0){
+                getNextToken();
+            }
         }
     }
+    
 }
 
 
@@ -258,7 +259,7 @@ bool declaration(){
             getNextToken();
         }
         else {
-            error("Invalid declaration");
+            error("Invalid declaration 261");
             while(!nullStatement() || !typeSpecifier()){
                 getNextToken();
             }
@@ -306,7 +307,7 @@ bool expressionStatement(){
         getNextToken(); 
         getNextToken(); 
         if(!unaryExpression()){
-            error("Invalid expression");
+            error("Invalid expression 309");
             while(!nullStatement()){
                 getNextToken();
             }
@@ -344,32 +345,32 @@ OUTPUT: N/A
 bool primaryExpression(){
     if(constant()){
         getNextToken();
-        if(!nullStatement()){
-            error("Expected ';'");
+        /*if(!nullStatement()){
+            error("Expected ';' 348");
             while(!nullStatement() && strcmp(curToken->tokenID, "<EOF>") != 0){
                 getNextToken();
             }
-        }
+        }*/
         return true;
     }
     else if(identifier()){
         getNextToken();
-        if(!nullStatement()){
-            error("Expected ';'");
+        /*if(!nullStatement()){
+            error("Expected ';' 358");
             while(!nullStatement() && strcmp(curToken->tokenID, "<EOF>") != 0){
                 getNextToken();
             }
-        }
+        }*/
         return true;
     }
     else if(parenthesizedExpression()){
         getNextToken();
-        if(!nullStatement()){
-            error("Expected ';'");
+        /*if(!nullStatement()){
+            error("Expected ';' 368");
             while(!nullStatement() && strcmp(curToken->tokenID, "<EOF>") != 0){
                 getNextToken();
             }
-        }
+        }*/
         return true;
     }
     return false;
@@ -385,17 +386,18 @@ bool parenthesizedExpression(){
     if(openParenthesis()){
         getNextToken();
         if(!expression()){
-            error("Invalid expression");
+            error("Invalid expression 388");
             while(!closedParenthesis() && !nullStatement() && strcmp(curToken->tokenID, "<EOF>") != 0){
                 getNextToken();
             }
         }
-        else{
+        /*else{
             getNextToken();
-        }
+        }*/
         if(!closedParenthesis()){
-            error("Expected ')'");
+            error("Expected ')' 397");
         }
+        getNextToken();
         return true;
     }
     return false;
@@ -424,16 +426,16 @@ bool whileStatement(){
     if(isWhile()){
         getNextToken();
         if(!openParenthesis()){
-            error("Expected '('");
+            error("Expected '(' 427");
         }
         else{
             getNextToken();
         }
         if(!expression()){
-            error("Invalid expression");
+            error("Invalid expression 433");
         }
         if(!closedParenthesis()){
-            error("Expected ')'");
+            error("Expected ')' 436");
         }
         getNextToken();
         statement();
@@ -904,8 +906,9 @@ void error(char* msg){
     int lineNumWidth = (int)floor(log10(errorStatement.line)) + 1;
     int caret = errorStatement.position;
     printf("%d: %s\n", errorStatement.line, errorStatement.code);
+    printf("%s\n", curToken->tokenID);
     char padding[128];
-    for(i = 0; i < lineNumWidth + 2 + caretPos; i++){
+    for(i = 0; i < lineNumWidth + 2 + caret; i++){
         padding[i]=' ';
     }
     padding[i] = '\0';
