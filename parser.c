@@ -11,12 +11,8 @@ STATUS:
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <math.h>
 #include "scanner.c"
-
-struct errorData{
-    int position, line;
-    char* code;
-};
 
 void getNextToken();
 
@@ -69,25 +65,32 @@ bool isOr();
 struct errorData{
     int position, line;
     char* code;
-}
+};
 
 void error(char* msg);
 
-struct token curToken;
-struct token nextToken;
+struct token* curToken;
+struct token* nextToken;
 struct errorData errorStatement;
 FILE *fp;
-struct errorData errorStatement;
 
 int main (int argc, char **argv){
     errorStatement.line = 1;
     errorStatement.position = 0;
+    errorStatement.code = malloc(100 * sizeof(char));
+    curToken = malloc(sizeof(struct token));
+    nextToken = malloc(sizeof(struct token));
+    curToken->tokenID = NULL;
+    curToken->code = NULL;
+    nextToken->tokenID = NULL;
+    nextToken->code = NULL;
     fp = fopen (argv[1], "r");
     if (fp == NULL) {
         printf ("ERROR - File not found\n");
         return 1;
     }
-
+    getNextToken();
+    getNextToken();
     program();
 
     fclose (fp);
@@ -95,22 +98,25 @@ int main (int argc, char **argv){
 }
 
 void getNextToken(){
-    curToken = nextToken;
+    *curToken = *nextToken;
     int dummyNum = 0;
-
+    char str[2];
+    str[1] = '\0';
     while(c == ' ' || c == '\t' || c == '\n') {
         if(c == ' '){ 
             errorStatement.position++; 
-            strcat(errorStatement.code, c);
+            str[0] = c;
+            strcat(errorStatement.code, str);
         }
         else if(c == '\t'){ 
             errorStatement.position+=4;
-            strcat(errorStatement.code, c);
+            str[0] = c;
+            strcat(errorStatement.code, str);
         }
         else{
             errorStatement.position = 0;
             errorStatement.line++;
-            errorStatement.code = " "; 
+            errorStatement.code[0] = '\0';
         }
         c = fgetc(fp);
     }
@@ -120,11 +126,11 @@ void getNextToken(){
         else { operator(fp,  &nextToken,  &dummyNum); }
     }
     else {
-        nextToken.tokenID = "<EOF>";
-        nextToken.code = "EOF";
+        nextToken->tokenID = "<EOF>";
+        nextToken->code = "EOF";
     }
-    errorStatement.position += strlen(nextToken.code);
-    strcat(errorStatement.code, nextToken.code);
+    errorStatement.position += strlen(nextToken->code);
+    strcat(errorStatement.code, nextToken->code);
 }
 
 
@@ -174,7 +180,7 @@ void declarationList(){
     while(declaration());
 }
 void statementList(){
-    while(nextToken.tokenID != "<END>" && nextToken.tokenID != "<EOF>"){
+    while(strcmp(nextToken->tokenID, "<END>") !=0 && strcmp(nextToken->tokenID, "<EOF>") !=0){
         statement();
         getNextToken();
     }
@@ -187,7 +193,7 @@ void statement(){
     }
     else {
         error("Invalid statement");
-        while(!nullStatement() && !begin() && nextToken.tokenID != "<END>" && nextToken.tokenID != "<EOF>"){
+        while(!nullStatement() && !begin() && strcmp(nextToken->tokenID, "<END>") !=0 && strcmp(nextToken->tokenID, "<EOF>") !=0){
             getNextToken();
         }
     }
@@ -219,15 +225,15 @@ bool typeSpecifier(){
 }
 
 bool initalizedDeclaratorList(){
-    while(identifier() && (strcmp(nextToken.tokenID, "<COMMA>") == 0)){
+    while(identifier() && (strcmp(nextToken->tokenID, "<COMMA>") == 0)){
         getNextToken(); 
         getNextToken(); 
     }
-    return (identifier() && (strcmp(nextToken.tokenID, "<STMT-END>") == 0));
+    return (identifier() && (strcmp(nextToken->tokenID, "<STMT-END>") == 0));
 }
 
 bool expressionStatement(){
-    if(identifier() && (strcmp(nextToken.tokenID, "<ASSIGN>") == 0)){
+    if(identifier() && (strcmp(nextToken->tokenID, "<ASSIGN>") == 0)){
         getNextToken(); 
         getNextToken(); 
         if(!unaryExpression()){
@@ -244,7 +250,7 @@ bool expressionStatement(){
     return false;
 }
 bool unaryExpression(){ 
-    if(addOp() && strcmp(curToken.code, "-") == 0 ){
+    if(addOp() && strcmp(curToken->code, "-") == 0 ){
         getNextToken();
     }
     if(primaryExpression()){
@@ -257,7 +263,7 @@ bool primaryExpression(){
         getNextToken();
         if(!nullStatement()){
             error("Expected ';'");
-            while(!nullStatement() && curToken.tokenID != "<EOF>"){
+            while(!nullStatement() && strcmp(curToken->tokenID, "<EOF>") != 0){
                 getNextToken();
             }
         }
@@ -267,7 +273,7 @@ bool primaryExpression(){
         getNextToken();
         if(!nullStatement()){
             error("Expected ';'");
-            while(!nullStatement() && curToken.tokenID != "<EOF>"){
+            while(!nullStatement() && strcmp(curToken->tokenID, "<EOF>") != 0){
                 getNextToken();
             }
         }
@@ -277,7 +283,7 @@ bool primaryExpression(){
         getNextToken();
         if(!nullStatement()){
             error("Expected ';'");
-            while(!nullStatement() && curToken.tokenID != "<EOF>"){
+            while(!nullStatement() && strcmp(curToken->tokenID, "<EOF>") != 0){
                 getNextToken();
             }
         }
@@ -291,7 +297,7 @@ bool parenthesizedExpression(){
         getNextToken();
         if(!expression()){
             error("Invalid expression");
-            while(!closedParenthesis() && !nullStatement() && curToken.tokenID != "<EOF>"){
+            while(!closedParenthesis() && !nullStatement() && strcmp(curToken->tokenID, "<EOF>") != 0){
                 getNextToken();
             }
         }
@@ -451,104 +457,104 @@ bool logicalOrExpression(){
 
 
 bool isProgram(){
-    if(strcmp(curToken.tokenID, "<PROGRAM>") == 0){
+    if(strcmp(curToken->tokenID, "<PROGRAM>") == 0){
         return true;
     }
     return false;
 }
 bool isMain(){
-    if(strcmp(curToken.tokenID, "<ID>") == 0 && strcmp(curToken.code, "main") == 0){
+    if(strcmp(curToken->tokenID, "<ID>") == 0 && strcmp(curToken->code, "main") == 0){
         return true;
     }
     return false;
 }
 
 bool intType(){
-    if(strcmp(curToken.tokenID, "<INT>") == 0){
+    if(strcmp(curToken->tokenID, "<INT>") == 0){
         return true;
     }
     return false;
 }
 bool floatType(){
-    if(strcmp(curToken.tokenID, "<FLOAT>") == 0){
+    if(strcmp(curToken->tokenID, "<FLOAT>") == 0){
         return true;
     }
     return false;
 }
 bool identifier(){
-    if(strcmp(curToken.tokenID, "<ID>") == 0){
+    if(strcmp(curToken->tokenID, "<ID>") == 0){
         return true;
     }
     return false;
 }
 bool begin(){
-    if(strcmp(curToken.tokenID, "<BEGIN>") == 0){
+    if(strcmp(curToken->tokenID, "<BEGIN>") == 0){
         return true;
     }
     return false;
 }
 bool end(){
-    if(strcmp(curToken.tokenID, "<END>") == 0){
+    if(strcmp(curToken->tokenID, "<END>") == 0){
         return true;
     }
     return false;
 }
 bool openParenthesis(){
-    if(strcmp(curToken.tokenID, "<OPEN-PAREN>") == 0){
+    if(strcmp(curToken->tokenID, "<OPEN-PAREN>") == 0){
         return true;
     }
     return false;
 }
 bool closedParenthesis(){
-    if(strcmp(curToken.tokenID, "<CLOSED-PAREN>") == 0){
+    if(strcmp(curToken->tokenID, "<CLOSED-PAREN>") == 0){
         return true;
     }
     return false;
 }
 bool nullStatement(){
-    if(strcmp(curToken.tokenID, "<STMT-END>") == 0){
+    if(strcmp(curToken->tokenID, "<STMT-END>") == 0){
         return true;
     }
     return false;
 }
 bool isWhile(){
-    if(strcmp(curToken.tokenID, "<WHILE>") == 0){
+    if(strcmp(curToken->tokenID, "<WHILE>") == 0){
         return true;
     }
     return false;
 }
 bool isIf(){
-    if(strcmp(curToken.tokenID, "<IF>") == 0){
+    if(strcmp(curToken->tokenID, "<IF>") == 0){
         return true;
     }
     return false;
 }
 bool isElse(){
-    if(strcmp(curToken.tokenID, "<ELSE>") == 0){
+    if(strcmp(curToken->tokenID, "<ELSE>") == 0){
         return true;
     }
     return false;
 }
 bool addOp(){
-    if(strcmp(curToken.tokenID, "<ADD-OP>") == 0){
+    if(strcmp(curToken->tokenID, "<ADD-OP>") == 0){
         return true;
     }
     return false;
 }
 bool multOp(){
-    if(strcmp(curToken.tokenID, "<MULT-OP>") == 0){
+    if(strcmp(curToken->tokenID, "<MULT-OP>") == 0){
         return true;
     }
     return false;
 }
 bool equalityOp(){
-    if(strcmp(curToken.tokenID, "<EQ-OP>") == 0){
+    if(strcmp(curToken->tokenID, "<EQ-OP>") == 0){
         return true;
     }
     return false;
 }
 bool relationalOp(){
-    if(strcmp(curToken.tokenID, "<COMP-OP>") == 0){
+    if(strcmp(curToken->tokenID, "<COMP-OP>") == 0){
         return true;
     }
     return false;
@@ -560,25 +566,25 @@ bool constant(){
     return false;
 }
 bool integerConstant(){
-    if(strcmp(curToken.tokenID, "<INT-CONST>") == 0){
+    if(strcmp(curToken->tokenID, "<INT-CONST>") == 0){
         return true;
     }
     return false;
 }
 bool floatingConstant(){
-    if(strcmp(curToken.tokenID, "<FLOAT-CONST>") == 0){
+    if(strcmp(curToken->tokenID, "<FLOAT-CONST>") == 0){
         return true;
     }
     return false;
 }
 bool isAnd(){
-    if(strcmp(curToken.tokenID, "<AND>") == 0){
+    if(strcmp(curToken->tokenID, "<AND>") == 0){
         return true;
     }
     return false;
 }
 bool isOr(){
-    if(strcmp(curToken.tokenID, "<OR>") == 0){
+    if(strcmp(curToken->tokenID, "<OR>") == 0){
         return true;
     }
     return false;
@@ -589,11 +595,11 @@ void error(char* msg){
     char str[100];
     printf("%d: %s\n", errorStatement.line, errorStatement.code);
     int i;
-    for(i = 0; i < strlen(errorStatement.code); i++){
+    for(i = 0; i < strlen(errorStatement.code)+floor(log10(errorStatement.line))+1; i++){
         str[i]=' ';
     }
     str[i] = '\0';
-    printf("    %s^\n", str);
+    printf("  %s^\n", str);
     printf("Error: %s\n", msg);
 }
 
