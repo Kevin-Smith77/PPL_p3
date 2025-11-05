@@ -86,6 +86,10 @@ OUTPUT: Displayed token strings
 void printTokens(struct token** tokenArray, int numTokens) {
     int i;
     for (i = 0; i < numTokens; i++) {
+        printf("%s ", tokenArray[i]->code);
+    }
+    printf("\n");
+    for (i = 0; i < numTokens; i++) {
         printf("%s", tokenArray[i]->tokenID);
     }
     printf("\n");
@@ -99,75 +103,92 @@ INPUT: [file] input pointer, token array, [int] of number of tokens in array
 OUTPUT: NULL
 */
 void operator(FILE *fp, struct token** tokenArray, int* numTokens){
+    char str[3];
     if (c == '+' || c == '-'){
         tokenArray[*numTokens]->tokenID = "<ADD-OP>";
-        tokenArray[*numTokens]->code = strdup(c);
+        tokenArray[*numTokens]->code = strdup(&c);
         (*numTokens)++;
         c = fgetc(fp);
     }
     else if (c == '=' ){
         tokenArray[*numTokens]->tokenID = "<EQ-OP>";
-        tokenArray[*numTokens]->code = strdup(c);
+        tokenArray[*numTokens]->code = strdup(&c);
         (*numTokens)++;
         c = fgetc(fp);
     }
     else if(c==':'){
-        
+        str[0] = c;
         c = fgetc(fp);
         if(c == '='){
+            str[1] = c;
+            str[2] = '\0';
             tokenArray[*numTokens]->tokenID = "<ASSIGN>";
-            tokenArray[*numTokens]->code = strdup(":=");
+            tokenArray[*numTokens]->code = strdup(str);
             (*numTokens)++;
             c = fgetc(fp);
         }
         else { 
+            str[1] = c;
+            str[2] = '\0';
             tokenArray[*numTokens]->tokenID = "<OTHER>";
-            tokenArray[*numTokens]->code = strdup(":" + c);
+            tokenArray[*numTokens]->code = strdup(str);
             (*numTokens)++;
         }
     }
     else if(c=='&'){
-        
+        str[0] = c;
         c = fgetc(fp);
         if(c == '&'){
+            str[1] = c;
+            str[2] = '\0';
             tokenArray[*numTokens]->tokenID = "<AND>";
-            tokenArray[*numTokens]->code = strdup("&&");
+            tokenArray[*numTokens]->code = strdup(str);
             (*numTokens)++;
             c = fgetc(fp);
         }
         else { 
+            str[1] = c;
+            str[2] = '\0';
             tokenArray[*numTokens]->tokenID = "<OTHER>";
-            tokenArray[*numTokens]->code = strdup("&" + c);
+            tokenArray[*numTokens]->code = strdup(str);
             (*numTokens)++;
         }
     }
     else if(c=='|'){
-        
+        str[0] = c;
         c = fgetc(fp);
         if(c == '|'){
+            str[1] = c;
+            str[2] = '\0';
             tokenArray[*numTokens]->tokenID = "<OR>";
-            tokenArray[*numTokens]->code = strdup("||");
+            tokenArray[*numTokens]->code = strdup(str);
             (*numTokens)++;
             c = fgetc(fp);
         }
         else { 
+            str[1] = c;
+            str[2] = '\0';
             tokenArray[*numTokens]->tokenID = "<OTHER>";
-            tokenArray[*numTokens]->code = strdup("|" + c);
+            tokenArray[*numTokens]->code = strdup(str);
             (*numTokens)++;
         }
     }
 
     else if (c == '!'){
-        
+        str[0] = c;
         c = fgetc(fp);
         if(c == '=') { 
+            str[1] = c;
+            str[2] = '\0';
             tokenArray[(*numTokens)]->tokenID = "<EQ-OP>";
-            tokenArray[(*numTokens)]->code = strdup("!=");
+            tokenArray[(*numTokens)]->code = strdup(str);
             (*numTokens)++;
         }
         else { 
+            str[1] = c;
+            str[2] = '\0';
             tokenArray[(*numTokens)++]->tokenID = "<OTHER>";
-            tokenArray[(*numTokens)]->code = strdup("!" + c);
+            tokenArray[(*numTokens)]->code = strdup(str);
             (*numTokens)++;
         }
         c = fgetc(fp);
@@ -175,53 +196,58 @@ void operator(FILE *fp, struct token** tokenArray, int* numTokens){
     else if (c == '>' || c == '<'){
         
         tokenArray[(*numTokens)]->tokenID = "<COMP-OP>";
-        tokenArray[(*numTokens)]->code = strdup(c);
+        tokenArray[(*numTokens)]->code = strdup(&c);
         c = fgetc(fp);
         if(c == '='){
-            //NEEDS TO BE FIXED
-            printf("%c", c);
+            if(strcmp(tokenArray[(*numTokens)]->code, "<") == 0){
+                tokenArray[(*numTokens)]->code = strdup("<=");
+            }
+            else{
+                tokenArray[(*numTokens)]->code = strdup(">=");
+            }
             c = fgetc(fp);
-        }    
+        }
+        (*numTokens)++;
     }
     else if (c == '*' || c == '/' || c == '%'){ 
         
         tokenArray[(*numTokens)]->tokenID = "<MULT-OP>"; 
-        tokenArray[(*numTokens)]->code = strdup(c);
+        tokenArray[(*numTokens)]->code = strdup(&c);
         (*numTokens)++;
         c = fgetc(fp);
     }
     else if (c == ';'){
         
         tokenArray[(*numTokens)]->tokenID = "<STMT-END>";
-        tokenArray[(*numTokens)]->code = strdup(c);
+        tokenArray[(*numTokens)]->code = strdup(&c);
         (*numTokens)++;
         c = fgetc(fp);
     }
     else if ( c == '('){
         
         tokenArray[(*numTokens)]->tokenID = "<OPEN-PAREN>";
-        tokenArray[(*numTokens)]->code = strdup(c);
+        tokenArray[(*numTokens)]->code = strdup(&c);
         (*numTokens)++;
         c = fgetc(fp);
     }
     else if (c == ')'){
         
         tokenArray[(*numTokens)]->tokenID = "<CLOSED-PAREN>";
-        tokenArray[(*numTokens)]->code = strdup(c);
+        tokenArray[(*numTokens)]->code = strdup(&c);
         (*numTokens)++;
         c = fgetc(fp);
     }
     else if (c == ','){
         
         tokenArray[(*numTokens)]->tokenID = "<COMMA>";
-        tokenArray[(*numTokens)]->code = strdup(c);
+        tokenArray[(*numTokens)]->code = strdup(&c);
         (*numTokens)++;
         c = fgetc(fp);
     }
     else{ 
         
         tokenArray[(*numTokens)]->tokenID = "<OTHER>";
-        tokenArray[(*numTokens)]->code = strdup(c);
+        tokenArray[(*numTokens)]->code = strdup(&c);
         (*numTokens)++;
         c = fgetc(fp);
     }
@@ -270,7 +296,6 @@ void digit(FILE* fp, struct token** tokenArray, int* numTokens){
 
     while (isdigit(c)) {
         str[index++] = c;
-        printf("%c", c);
         c = fgetc(fp);
     }
 
@@ -280,7 +305,6 @@ void digit(FILE* fp, struct token** tokenArray, int* numTokens){
         c = fgetc(fp);
         while (isdigit(c)) {
             str[index++] = c;
-            printf("%c", c);
             c = fgetc(fp);
         }
         str[index] = '\0';
