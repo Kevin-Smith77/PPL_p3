@@ -900,16 +900,18 @@ INPUT: global errorData, [char*] error message
 OUTPUT: structured error statement
 */
 void error(char* msg){
-    char str[100];
-    printf("%d: %s\n", errorStatement.line, errorStatement.code);
-    printf("%s\n",curToken->tokenID);
     int i;
-    for(i = 0; i < strlen(errorStatement.code)+floor(log10(errorStatement.line))+1; i++){
-        str[i]=' ';
+    int lineNumWidth = (int)floor(log10(errorStatement.line)) + 1;
+    int caret = errorStatement.position;
+    printf("%d: %s\n", errorStatement.line, errorStatement.code);
+    char padding[128];
+    for(i = 0; i < lineNumWidth + 2 + caretPos; i++){
+        padding[i]=' ';
     }
-    str[i] = '\0';
-    printf("  %s^\n", str);
+    padding[i] = '\0';
+    printf("  %s^\n", padding);
     printf("Error: %s\n", msg);
 }
+
 
 
