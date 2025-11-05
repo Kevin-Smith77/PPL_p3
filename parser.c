@@ -3,7 +3,8 @@ NAME: Ben McIntire/Kevin Smith
 FILE: parser.c
 FUNC: Parse through C- code and display any issues encountered
 INPUT: [FILE] with C- code
-OUTPUT: errors within C- code
+OUTPUT: errors within C- code. Errors displayed with line number, the line of code with 
+    the error up to the error, and a carrot pointing to the position of the error
 STATUS: DONE
 */
 
@@ -199,6 +200,9 @@ void compoundStatement(){
     if(!end()){
         error("Expected 'end' 200");
     }
+    else{
+        getNextToken();
+    }
 }
 
 
@@ -218,9 +222,9 @@ INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, globa
 OUTPUT: N/A
 */
 void statementList(){
-    while(strcmp(nextToken->tokenID, "<END>") !=0 && strcmp(nextToken->tokenID, "<EOF>") !=0){
+    while(!end() && strcmp(nextToken->tokenID, "<EOF>") !=0){
         statement();
-        getNextToken();
+        /*getNextToken();*/
     }
 }
 
@@ -306,18 +310,14 @@ INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, globa
 OUTPUT: N/A
 */
 bool expressionStatement(){
-    if(identifier() && (strcmp(nextToken->tokenID, "<ASSIGN>") == 0)){
-        getNextToken(); 
-        getNextToken(); 
-        if(!unaryExpression()){
-            error("Invalid expression 309");
-            while(!nullStatement()){
-                getNextToken();
-            }
+    if(expression()){
+        /*getNextToken();*/
+        if(nullStatement()){
+            getNextToken();
         }
-        return true;
-    }
-    else if(logicalOrExpression()){
+        else{
+            error("Expected ';' 339");
+        }
         return true;
     }
     return false;
@@ -348,32 +348,14 @@ OUTPUT: N/A
 bool primaryExpression(){
     if(constant()){
         getNextToken();
-        /*if(!nullStatement()){
-            error("Expected ';' 348");
-            while(!nullStatement() && strcmp(curToken->tokenID, "<EOF>") != 0){
-                getNextToken();
-            }
-        }*/
         return true;
     }
     else if(identifier()){
         getNextToken();
-        /*if(!nullStatement()){
-            error("Expected ';' 358");
-            while(!nullStatement() && strcmp(curToken->tokenID, "<EOF>") != 0){
-                getNextToken();
-            }
-        }*/
         return true;
     }
     else if(parenthesizedExpression()){
-        getNextToken();
-        /*if(!nullStatement()){
-            error("Expected ';' 368");
-            while(!nullStatement() && strcmp(curToken->tokenID, "<EOF>") != 0){
-                getNextToken();
-            }
-        }*/
+        /*getNextToken();*/
         return true;
     }
     return false;
@@ -394,14 +376,10 @@ bool parenthesizedExpression(){
                 getNextToken();
             }
         }
-        /*else{
+        if(closedParenthesis()){
             getNextToken();
-        }*/
-        if(!closedParenthesis()){
+        } else {
             error("Expected ')' 397");
-        }
-        else{
-            getNextToken();
         }
         return true;
     }
@@ -415,7 +393,18 @@ INPUT: global [FILE] pointer, global [token] structues curToken/nextToken, globa
 OUTPUT: N/A
 */
 bool expression(){
-    if(expressionStatement()){
+    if(identifier() && (strcmp(nextToken->tokenID, "<ASSIGN>") == 0)){
+        getNextToken(); 
+        getNextToken(); 
+        if(!unaryExpression()){
+            error("Invalid expression 309");
+            while(!nullStatement()){
+                getNextToken();
+            }
+        }
+        return true;
+    }
+    else if(logicalOrExpression()){
         return true;
     }
     return false;
@@ -489,19 +478,15 @@ OUTPUT: N/A
 */
 bool additiveExpression(){
     if(multiplicativeExpression()){
-        /*getNextToken();*/
         while(addOp()){
             getNextToken();
             if(!multiplicativeExpression()){
                 error("Invalid expression 491");
                 return false;
             }
-            getNextToken();
-        }
-        printf("ADD EXPR TRUE\n");
+        } 
         return true;
     }
-    printf("ADD EXPR FALSE\n");
     return false;
 }
 
@@ -513,18 +498,15 @@ OUTPUT: N/A
 */
 bool multiplicativeExpression(){
     if(unaryExpression()){
-        /*getNextToken();*/
         while(multOp()){
             getNextToken();
             if(!unaryExpression()){
                 error("Invalid expression");
                 return false;
             }
-            getNextToken();
         }
         return true;
     }
-    printf("MULT EXPR FALSE\n");
     return false;
 }
 
@@ -536,14 +518,12 @@ OUTPUT: N/A
 */
 bool relationalExpression(){
     if(additiveExpression()){
-        /*getNextToken();*/
         while(relationalOp()){
             getNextToken();
             if(!additiveExpression()){
                 error("Invalid expression 541");
                 return false;
             }
-            getNextToken();
         }
         return true;
     }
@@ -558,14 +538,12 @@ OUTPUT: N/A
 */
 bool equalityExpression(){
     if(relationalExpression()){
-        /*getNextToken();*/
         while(equalityOp()){
             getNextToken();
             if(!relationalExpression()){
                 error("Invalid expression");
                 return false;
             }
-            getNextToken();
         }
         return true;
     }
@@ -580,14 +558,12 @@ OUTPUT: N/A
 */
 bool logicalAndExpression(){
     if(equalityExpression()){
-        /*getNextToken();*/
         while(isAnd()){
             getNextToken();
             if(!equalityExpression()){
                 error("Invalid expression");
                 return false;
             }
-            getNextToken();
         }
         return true;
     }
@@ -602,14 +578,12 @@ OUTPUT: N/A
 */
 bool logicalOrExpression(){
     if(logicalAndExpression()){
-        /*getNextToken();*/
         while(isOr()){
             getNextToken();
             if(!logicalAndExpression()){
                 error("Invalid expression");
                 return false;
             }
-            getNextToken();
         }
         return true;
     }
