@@ -13,6 +13,11 @@ STATUS:
 #include <ctype.h>
 #include "scanner.c"
 
+struct errorData{
+    int position, line;
+    char* code;
+};
+
 void getNextToken();
 
 void program();
@@ -60,10 +65,12 @@ bool isElse();
 bool isAnd();
 bool isOr();
 
+void error(char* msg);
+
 struct token curToken;
 struct token nextToken;
 FILE *fp;
-
+struct errorData errorStatement;
 
 int main (int argc, char **argv){
     fp = fopen (argv[1], "r");
@@ -81,7 +88,7 @@ int main (int argc, char **argv){
 void getNextToken(){
     curToken = nextToken;
     int dummyNum = 0;
-    while(c == ' ' || c == '\t' || c != '\n') { c = fgetc(fp); }
+    while(c == ' ' || c == '\t' || c == '\n') { c = fgetc(fp); }
     if(c != EOF){
         if(isdigit(c)) { digit(fp, &nextToken, &dummyNum); }
         else if(isLetter(c)) { character(fp,  &nextToken,  &dummyNum); }
@@ -548,4 +555,16 @@ bool isOr(){
         return true;
     }
     return false;
+}
+
+void error(char* msg){
+    char str[100];
+    printf("%d: %s\n", errorStatement.line, errorStatement.code);
+    int i;
+    for(i = 0; i < strlen(errorStatement.code); i++){
+        str[i]=' ';
+    }
+    str[i] = '\0';
+    printf("    %s^\n", str);
+    printf("Error: %s\n", msg);
 }
