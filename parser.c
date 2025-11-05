@@ -60,12 +60,20 @@ bool isElse();
 bool isAnd();
 bool isOr();
 
+struct errorData{
+    int position, line;
+    char* code;
+}
+
 struct token curToken;
 struct token nextToken;
+struct errorData errorStatement;
 FILE *fp;
 
 
 int main (int argc, char **argv){
+    errorStatement.line = 1;
+    errorStatement.position = 0;
     fp = fopen (argv[1], "r");
     if (fp == NULL) {
         printf ("ERROR - File not found\n");
@@ -81,7 +89,23 @@ int main (int argc, char **argv){
 void getNextToken(){
     curToken = nextToken;
     int dummyNum = 0;
-    while(c == ' ' || c == '\t' || c != '\n') { c = fgetc(fp); }
+    while(c == ' ' || c == '\t' || c == '\n') {
+        if(c == ' '){ 
+            errorStatement.position++; 
+            strcat(errorStatement.code, c);
+        }
+        else if(c == '\t'){ 
+            errorStatement.position+=4;
+            strcat(errorStatement.code, c);
+        }
+        else{
+            errorStatement.position = 0;
+            errorStatement.line++;
+            errorStatement.code = " "; 
+        }
+        c = fgetc(fp);
+    }
+    
     if(c != EOF){
         if(isdigit(c)) { digit(fp, &nextToken, &dummyNum); }
         else if(isLetter(c)) { character(fp,  &nextToken,  &dummyNum); }
@@ -91,6 +115,8 @@ void getNextToken(){
         nextToken.tokenID = "<EOF>";
         nextToken.code = "EOF";
     }
+    errorStatement.position += strlen(nextToken.code);
+    strcat(errorStatement.code, nextToken.code);
 }
 
 
@@ -548,4 +574,5 @@ bool isOr(){
         return true;
     }
     return false;
+
 }
