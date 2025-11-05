@@ -8,7 +8,7 @@ STATUS: DONE
 */
 
 
-// INCLUDE STATEMENTS
+/* INCLUDE STATEMENTS */
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
@@ -97,6 +97,7 @@ int main (int argc, char **argv){
         printf ("ERROR - File not found\n");
         return 1;
     }
+    c = fgetc(fp);
     getNextToken();
     getNextToken();
     program();
@@ -901,6 +902,7 @@ OUTPUT: structured error statement
 void error(char* msg){
     char str[100];
     printf("%d: %s\n", errorStatement.line, errorStatement.code);
+    printf("%s\n",curToken->tokenID);
     int i;
     for(i = 0; i < strlen(errorStatement.code)+floor(log10(errorStatement.line))+1; i++){
         str[i]=' ';
